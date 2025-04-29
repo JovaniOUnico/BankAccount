@@ -8,6 +8,8 @@ import java.util.Scanner;
 
 import account.util.Colors;
 import account.model.Account;
+import account.model.CheckingAccount;
+import account.model.SavingsAccount;
 
 public class Execution {
 
@@ -64,7 +66,9 @@ public class Execution {
 			default -> System.out.println("Opção inválida tente novamente");
 		}
 
-		keyPress();
+		if (opt != 9) {			
+			keyPress();
+		}
 	}
 
 	public static void showCreateAccount() {
@@ -89,15 +93,32 @@ public class Execution {
 			titular = getValueString("Digite o nome do titular:");
 			numero  = getValueInt("Digite o numero da conta:");
 			agencia = getValueInt("Digite o numero da agencia:");
-			tipo    = getValueInt("Digite o tipo da conta:\n[ 1 - corrente | 2 - poupança]");
+			tipo    = getValueInt("Digite o tipo da conta:\n[ 1 - corrente | 2 - poupança]", 1, 2);
+
+			Account acc = null;
+			if (tipo == 1) {
+				float limit = getValueInt("Digite o Limite da conta");
+
+				acc = new CheckingAccount(numero, agencia, titular, limit);
+			} else if (tipo == 2) {				
+				String aniversary = getValueString("Digite a data de aniversario");
+
+				acc = new SavingsAccount(numero, agencia, titular, aniversary);
+			}
+
 			saldo   = getValueFloat("Digite o saldo atual");
 
-    		Account acc = new Account(numero, agencia, tipo, titular);
-    		acc.deposit(saldo);
-    		
-    		setAccount(acc);
+			try {
+	    		acc.deposit(saldo);
+	    		setAccount(acc);
+	    		
+	    		System.out.println("Conta adicionada com sucesso");
+			} catch (Exception ex) {
+			    System.err.println("Erro ao criar a conta");
 
-    		System.out.println("Conta adicionada com sucesso");
+			    read.nextLine();
+			}
+
     	}
 	}
 
@@ -106,7 +127,24 @@ public class Execution {
 
 		System.out.println("++++++++++++++++++++");
 		for (Account acc : AccountList) {
-			System.out.println("Titular: " + acc.getTitular() + " | Saldo : " + nfMoeda.format(acc.getSaldo()));
+			String type = acc.getClass().getName();
+
+			System.out.print("Titular: " + acc.getTitular() + " ");
+			System.out.print("| Tipo : " + ((type.equalsIgnoreCase("account.model.CheckingAccount") == true) ? "Conta Corrente" : "Conta Poupança") + " ");
+
+			try {
+				if (type.equalsIgnoreCase("account.model.CheckingAccount") == true) {	
+					System.out.print("| Limite: " + nfMoeda.format(((CheckingAccount) acc).getLimit()) + " ");
+				} else {
+					System.out.print("| Aniversário: " + ((SavingsAccount) acc).getAniversary() + " ");
+				}
+			} catch (Exception ex) {
+			    System.err.println("Erro ao acessar dados");
+
+			    read.nextLine();
+			}
+	
+			System.out.println("| Saldo : " + nfMoeda.format(acc.getSaldo()));
 		}
 		System.out.println("++++++++++++++++++++");
 	}
@@ -121,15 +159,15 @@ public class Execution {
 	
 	public static void testAccounts() {
 
-		setAccount(new Account(1234, 322, 1, "Lucy Ane"));
+		setAccount(new CheckingAccount(1234, 322, "Lucy Ane", 2000));
 		AccountList.get(0).deposit(3333);
 		showAccountList();
 
-		setAccount(new Account(1237, 322, 1, "Julio Cesar"));
+		setAccount(new CheckingAccount(1237, 322, "Julio Cesar", 3000));
 		AccountList.get(1).deposit(1000);
 		showAccountList();
 
-		setAccount(new Account(1238, 322, 1, "Mia Malkova"));
+		setAccount(new SavingsAccount(1238, 322, "Mia Malkova", "27/04/2025"));
 		AccountList.get(2).deposit(6969);
 		showAccountList();
 		AccountList.get(2).draw(500);
@@ -148,6 +186,33 @@ public class Execution {
 				value = read.nextInt();
 
 				validator = false;
+			} catch (Exception e) {
+			    System.err.println("Erro ao digitar o valor tente novamente!");
+
+			    read.nextLine();
+				continue;
+			}
+		}
+    	
+    	return value;
+	}
+	
+	public static int getValueInt(String msg, int min, int max) {
+    	boolean validator = true;
+    	int value = 0;
+
+    	while (validator) {
+        	System.out.println(msg);
+
+			try {
+				value = read.nextInt();
+				
+				if (value > min && value < max) {					
+					validator = false;
+				} else {
+					throw new Exception("Value is invalid");
+				}
+
 			} catch (Exception e) {
 			    System.err.println("Erro ao digitar o valor tente novamente!");
 

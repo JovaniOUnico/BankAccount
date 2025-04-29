@@ -8,10 +8,9 @@ public class Account {
 	private String titular;
 	private float saldo;
 	
-	public Account(int numero, int agencia, int tipo, String titular) {
+	public Account(int numero, int agencia, String titular) {
 		this.setNumero(numero);
 		this.setAgencia(agencia);
-		this.setTipo(tipo);
 		this.setTitular(titular);
 		this.setSaldo(0);
 	}
@@ -20,7 +19,7 @@ public class Account {
 		return saldo;
 	}
 
-	private void setSaldo(float saldo) {
+	protected void setSaldo(float saldo) {
 		this.saldo = saldo;
 	}
 
@@ -30,14 +29,6 @@ public class Account {
 
 	public void setTitular(String titular) {
 		this.titular = titular;
-	}
-
-	public int getTipo() {
-		return tipo;
-	}
-
-	public void setTipo(int tipo) {
-		this.tipo = tipo;
 	}
 
 	public int getAgencia() {
@@ -57,6 +48,7 @@ public class Account {
 	}
 	
 	// Métodos Bancários
+	// saque
 	public boolean draw(float valor) {
 		if (this.saldo < valor) {
 			return false;
@@ -67,6 +59,7 @@ public class Account {
 		return true;
 	}
 
+	//deposito
 	public boolean deposit(float valor) {
 		if (valor > 0) {
 			this.setSaldo(this.saldo + valor);
