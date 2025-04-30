@@ -29,6 +29,6 @@ public class Menu {
         }
 
         System.out.println(Aux + "*".repeat(LARG));
-        System.out.print(Aux + "Entre com a opção desejada: ");
+        System.out.println(Aux + "Entre com a opção desejada: ");
     }
 }

@@ -4,12 +4,11 @@ public class Account {
 
 	private int numero;
 	private int agencia;
-	private int tipo;
 	private String titular;
 	private float saldo;
 	
-	public Account(int numero, int agencia, String titular) {
-		this.setNumero(numero);
+	public Account(int num, int agencia, String titular) {
+		this.setNumero(num);
 		this.setAgencia(agencia);
 		this.setTitular(titular);
 		this.setSaldo(0);

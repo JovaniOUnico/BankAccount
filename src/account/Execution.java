@@ -2,23 +2,25 @@ package account;
 
 import java.io.IOException;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 import account.util.Colors;
+import account.comtroller.AccountController;
 import account.model.Account;
 import account.model.CheckingAccount;
 import account.model.SavingsAccount;
 
 public class Execution {
 
-	private static List<Account> AccountList = new ArrayList<Account>();
 	private static Scanner read;
+	private static AccountController accControl;
 
 	public static void main(String[] args) {
 
 		read = new Scanner(System.in);
+		
+		accControl = new AccountController();
 
 		Menu Mn = new Menu();
 
@@ -90,8 +92,9 @@ public class Execution {
         	String titular;
         	float saldo;
 
+        	read.nextLine();
 			titular = getValueString("Digite o nome do titular:");
-			numero  = getValueInt("Digite o numero da conta:");
+			numero  = accControl.getNumId();
 			agencia = getValueInt("Digite o numero da agencia:");
 			tipo    = getValueInt("Digite o tipo da conta:\n[ 1 - corrente | 2 - poupança]", 1, 2);
 
@@ -106,11 +109,11 @@ public class Execution {
 				acc = new SavingsAccount(numero, agencia, titular, aniversary);
 			}
 
-			saldo   = getValueFloat("Digite o saldo atual");
+			saldo = getValueFloat("Digite o saldo atual");
 
 			try {
 	    		acc.deposit(saldo);
-	    		setAccount(acc);
+	    		accControl.register(acc);
 	    		
 	    		System.out.println("Conta adicionada com sucesso");
 			} catch (Exception ex) {
@@ -126,7 +129,7 @@ public class Execution {
 		NumberFormat nfMoeda = NumberFormat.getCurrencyInstance();
 
 		System.out.println("++++++++++++++++++++");
-		for (Account acc : AccountList) {
+		for (Account acc : accControl.getList()) {
 			String type = acc.getClass().getName();
 
 			System.out.print("Titular: " + acc.getTitular() + " ");
@@ -153,24 +156,21 @@ public class Execution {
 		about();
 	}
 
-	public static void setAccount(Account acc) {
-		AccountList.add(acc);
-	}
-	
+
 	public static void testAccounts() {
 
-		setAccount(new CheckingAccount(1234, 322, "Lucy Ane", 2000));
-		AccountList.get(0).deposit(3333);
+		accControl.register(new CheckingAccount(accControl.getNumId(), 322, "Lucy Ane", 2000));
+		accControl.deposit(1, 3333);
 		showAccountList();
 
-		setAccount(new CheckingAccount(1237, 322, "Julio Cesar", 3000));
-		AccountList.get(1).deposit(1000);
+		accControl.register(new CheckingAccount(accControl.getNumId(), 322, "Julio Cesar", 3000));
+		accControl.deposit(2, 1000);
 		showAccountList();
 
-		setAccount(new SavingsAccount(1238, 322, "Mia Malkova", "27/04/2025"));
-		AccountList.get(2).deposit(6969);
+		accControl.register(new SavingsAccount(accControl.getNumId(), 322, "Mia Malkova", "27/04/2025"));
+		accControl.deposit(3, 6969);
 		showAccountList();
-		AccountList.get(2).draw(500);
+		accControl.draw(3, 500);
 		showAccountList();
 
 	}
@@ -206,8 +206,8 @@ public class Execution {
 
 			try {
 				value = read.nextInt();
-				
-				if (value > min && value < max) {					
+
+				if (value >= min && value <= max) {					
 					validator = false;
 				} else {
 					throw new Exception("Value is invalid");
