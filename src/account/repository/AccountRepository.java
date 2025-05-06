@@ -19,6 +19,6 @@ public interface AccountRepository {
 	
 	public boolean draw(int numero, float valor);
 	public boolean deposit(int numero, float valor);
-	public void transfer(int numeroOrigem, int numeroDestino, float valor);
+	public boolean transfer(int numeroOrigem, int numeroDestino, float valor);
 
 }

@@ -1,6 +1,5 @@
 package account;
 
-import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Optional;
@@ -39,8 +38,6 @@ public class Execution {
                 "Sair"
         );
 
-        testAccounts();
-
         do {        	
         	Mn.showMenu(menuPrincipal, Colors.BLACK_BACKGROUND, Colors.BLUE_BRIGHT);
 
@@ -64,13 +61,13 @@ public class Execution {
 			case 5 -> deleteAccount();
 			case 6 -> drawFromAccount();
 			case 7 -> depositFromAccount();
-			case 8 -> System.out.println("Transferir valores entre Contas");
-			case 9 -> showExit();
+			case 8 -> transferFromAccounts();
+			case 9 -> Menu.about();
 			default -> System.out.println("Opção inválida tente novamente");
 		}
 
 		if (opt != 9) {			
-			keyPress();
+			Menu.keyPress();
 		}
 	}
 
@@ -86,7 +83,7 @@ public class Execution {
         );
 
         Mn.showMenu(menuSecundario, Colors.BLACK_BACKGROUND, Colors.BLUE_BRIGHT);
-		opt = read.nextInt();
+		opt = getValueInt("");
 
     	if (opt != 2) {
     		int numero, agencia, tipo;
@@ -106,7 +103,7 @@ public class Execution {
 				acc = new CheckingAccount(numero, agencia, titular, limit);
 			} else if (tipo == 2) {
 				read.nextLine();
-				String aniversary = getValueString("Digite a data de aniversario");
+				String aniversary = getValueString("Digite a data de aniversario (dia-mes-ano)");
 
 				acc = new SavingsAccount(numero, agencia, titular, aniversary);
 			}
@@ -242,7 +239,7 @@ public class Execution {
 					acc = new CheckingAccount(numero, agencia, titular, limit);
 				} else if (tipo == 2) {
 					read.nextLine();
-					String aniversary = getValueString("Digite a data de aniversario");
+					String aniversary = getValueString("Digite a data de aniversario (dia-mes-ano)");
 
 					acc = new SavingsAccount(numero, agencia, titular, aniversary);
 				}
@@ -388,34 +385,69 @@ public class Execution {
 
 	}
 
-	public static void showExit() {
-		about();
+	public static void transferFromAccounts() {
+
+		Menu Mn = new Menu();
+
+		int opt = 0;
+
+		System.out.println("Seleção das contas");
+        List<String> menuSecundario = List.of(
+            "Pesquisar Por Número",
+            "Pesquisar Por Nome",
+            "Voltar"
+        );
+
+        Mn.showMenu(menuSecundario, Colors.BLACK_BACKGROUND, Colors.BLUE_BRIGHT);
+		opt = read.nextInt();
+
+		System.out.println("Selecione a conta de destino");
+		Optional<Account> accDestiny = selectAccount(opt);
+		
+		if (opt == 3) {
+			return;
+		}
+
+		System.out.println("Seleção das contas");
+        Mn.showMenu(menuSecundario, Colors.BLACK_BACKGROUND, Colors.BLUE_BRIGHT);
+		opt = read.nextInt();
+
+		System.out.println("Selecione a conta de origem");
+		Optional<Account> accSource = selectAccount(opt);
+
+		if (opt != 3) {
+			if (accDestiny.isPresent() && accSource.isPresent()) {
+				float value;
+				
+				value = getValueFloat("Digite o valor para transferir");
+				
+				if (accControl.transfer(accSource.get().getNumero(), accDestiny.get().getNumero(), value)) {
+					System.out.println("++++++++++++++++++++");
+					System.out.println("|Valor transferido com sucesso|");
+					System.out.println("++++++++++++++++++++");
+				} else {
+					System.out.println("++++++++++++++++++++");
+					System.out.println("|Não foi transferir o valor|");
+					System.out.println("++++++++++++++++++++");
+				}
+			} else {
+				System.out.println("++++++++++++++++++++");
+				System.out.println("|Conta não encontrada|");
+				System.out.println("++++++++++++++++++++");
+			}
+		}
+
 	}
 
-	public static void testAccounts() {
-
-		accControl.register(new CheckingAccount(accControl.getNumId(), 322, "Lucy Ane", 2000));
-		accControl.deposit(1, 3333);
-		showAccountList();
-
-		accControl.register(new CheckingAccount(accControl.getNumId(), 322, "Julio Cesar", 3000));
-		accControl.deposit(2, 1000);
-		showAccountList();
-
-		accControl.register(new SavingsAccount(accControl.getNumId(), 322, "Mia Malkova", "27-04-2025"));
-		accControl.deposit(3, 6969);
-		showAccountList();
-		accControl.draw(3, 500);
-		showAccountList();
-
-	}
-	
 	public static int getValueInt(String msg) {
     	boolean validator = true;
     	int value = 0;
 
     	while (validator) {
-        	System.out.println(msg);
+    		
+    		if (!msg.isEmpty()) {    			
+    			System.out.println(msg);
+    		}
 
 			try {
 				value = read.nextInt();
@@ -526,28 +558,6 @@ public class Execution {
 		}
 		
 		return null;
-	}
-
-	public static void about() {
-		System.out.println("\n*********************************************************");
-		System.out.println("Projeto Desenvolvido por: ");
-		System.out.println("Jovani Almeida de Souza");
-		System.out.println("https://github.com/JovaniOUnico/BankAccount");
-		System.out.println("*********************************************************");
-	}
-
-	public static void keyPress() {
-
-		try {
-
-			System.out.println("\n\nPressione Enter para Continuar...");
-			System.in.read();
-
-		} catch (IOException e) {
-
-			System.out.println("Você pressionou uma tecla diferente de enter!");
-
-		}
 	}
 
 }

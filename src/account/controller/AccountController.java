@@ -74,7 +74,14 @@ public class AccountController implements AccountRepository {
 
 	    if (acc.isPresent()) {
 	        try {
-	            return acc.get().draw(valor);
+	        	
+	        	boolean make = acc.get().draw(valor);
+	        	
+	        	if (make) {
+	        		this.update(acc.get());
+	        	}
+
+	            return make;
 	        } catch (IllegalArgumentException ex) {
 	            // Captura exceções específicas do método deposit, se houver
 	            System.err.println("Erro ao depositar na conta " + numero + ": " + ex.getMessage());
@@ -93,7 +100,14 @@ public class AccountController implements AccountRepository {
 
 	    if (acc.isPresent()) {
 	        try {
-	            return acc.get().deposit(valor);
+	        	
+	        	boolean make = acc.get().deposit(valor);
+	        	
+	        	if (make) {
+	        		this.update(acc.get());
+	        	}
+
+	            return make;
 	        } catch (IllegalArgumentException ex) {
 	            // Captura exceções específicas do método deposit, se houver
 	            System.err.println("Erro ao depositar na conta " + numero + ": " + ex.getMessage());
@@ -106,9 +120,52 @@ public class AccountController implements AccountRepository {
 	}
 
 	@Override
-	public void transfer(int numeroOrigem, int numeroDestino, float valor) {
-		// TODO Auto-generated method stub
+	public boolean transfer(int numSource, int numDestiny, float value) {
+	    Optional<Account> accSource = this.searchByNumber(numSource);
+	    Optional<Account> accDestiny = this.searchByNumber(numSource);
+	    
+        try {
+    		System.out.println("-0-");
+    	    if (accSource.isPresent()) {    	    	
 
+	        	boolean make = accSource.get().draw(value);
+
+	        	if (make) {
+	        		System.out.println("-1-");
+	        		this.update(accSource.get());
+	        	} else {
+	        		return false;
+	        	}
+
+    	    } else {
+    	    	return false;
+    	    }
+    	    
+    	    if (accDestiny.isPresent()) {    	    	
+
+	        	boolean make = accDestiny.get().deposit(value);
+
+	        	if (make) {
+	        		System.out.println("-2-");
+	        		this.update(accDestiny.get());
+	        	} else {
+	        		return false;
+	        	}
+    	    } else {
+	        	boolean make = accSource.get().deposit(value);
+
+	        	if (make) {
+	        		this.update(accSource.get());
+	        	}
+
+    	    	return false;
+    	    }
+        } catch (IllegalArgumentException ex) {
+            // Captura exceções específicas do método deposit, se houver
+            System.err.println("Erro ao depositar na conta " + numSource + ": " + ex.getMessage());
+            throw ex; // Relança a exceção para o chamador saber do problema
+        }	    
+	    return true;
 	}
 
 	/* Métodos Auxiliares */
@@ -119,22 +176,14 @@ public class AccountController implements AccountRepository {
 
 	/* Buscas por numero e nome*/
 	private Optional<Account> searchOnCollection(int numero) {
-
-		for (var aux : listaContas) {
-			if (aux.getNumero() == numero)
-				return Optional.of(aux);
-		}
-
-		return Optional.empty();
+		return listaContas.stream()
+	            .filter(conta -> conta.getNumero() == numero)
+	            .findFirst();
 	}
 	
 	private Optional<Account> searchOnCollection(String name) {
-
-		for (var aux : listaContas) {
-			if (aux.getTitular().equalsIgnoreCase(name))
-				return Optional.of(aux);
-		}
-
-		return Optional.empty();
+		return listaContas.stream()
+	            .filter(conta -> conta.getTitular().contains(name))
+	            .findFirst();
 	}
 }
