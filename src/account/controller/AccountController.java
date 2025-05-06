@@ -1,4 +1,4 @@
-package account.comtroller;
+package account.controller;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -19,10 +19,15 @@ public class AccountController implements AccountRepository {
 
 		Optional<Account> acc = searchOnCollection(numero);
 
-		if (acc.isPresent())
-			return Optional.ofNullable(acc.get());
-		else
-			return null;
+		return acc;
+	}
+	
+	@Override
+	public Optional<Account> searchByName(String name) {
+
+		Optional<Account> acc = searchOnCollection(name);
+
+		return acc;
 	}
 
 	@Override
@@ -62,35 +67,41 @@ public class AccountController implements AccountRepository {
 
 	}
 
+	/* Saque*/
 	@Override
-	public void draw(int numero, float valor) {
+	public boolean draw(int numero, float valor) {
 	    Optional<Account> acc = this.searchByNumber(numero);
 
 	    if (acc.isPresent()) {
 	        try {
-	            acc.get().draw(valor);
+	            return acc.get().draw(valor);
 	        } catch (IllegalArgumentException ex) {
 	            // Captura exceções específicas do método deposit, se houver
 	            System.err.println("Erro ao depositar na conta " + numero + ": " + ex.getMessage());
 	            throw ex; // Relança a exceção para o chamador saber do problema
 	        }
 	    }
+	    
+	    return false;
 
 	}
 
+	/* Deposito*/
 	@Override
-	public void deposit(int numero, float valor) {
+	public boolean deposit(int numero, float valor) {
 	    Optional<Account> acc = this.searchByNumber(numero);
 
 	    if (acc.isPresent()) {
 	        try {
-	            acc.get().deposit(valor);
+	            return acc.get().deposit(valor);
 	        } catch (IllegalArgumentException ex) {
 	            // Captura exceções específicas do método deposit, se houver
 	            System.err.println("Erro ao depositar na conta " + numero + ": " + ex.getMessage());
 	            throw ex; // Relança a exceção para o chamador saber do problema
 	        }
 	    }
+	    
+	    return false;
 
 	}
 
@@ -106,10 +117,21 @@ public class AccountController implements AccountRepository {
 		return ++num;
 	}
 
-	public Optional<Account> searchOnCollection(int numero) {
+	/* Buscas por numero e nome*/
+	private Optional<Account> searchOnCollection(int numero) {
 
 		for (var aux : listaContas) {
 			if (aux.getNumero() == numero)
+				return Optional.of(aux);
+		}
+
+		return Optional.empty();
+	}
+	
+	private Optional<Account> searchOnCollection(String name) {
+
+		for (var aux : listaContas) {
+			if (aux.getTitular().equalsIgnoreCase(name))
 				return Optional.of(aux);
 		}
 

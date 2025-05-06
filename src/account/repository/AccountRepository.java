@@ -9,6 +9,7 @@ public interface AccountRepository {
 	// CRUD
 	
 	public Optional<Account> searchByNumber(int num);
+	public Optional<Account> searchByName(String name);
 	public ArrayList<Account> getList();
 	public void register(Account  acc);
 	public boolean update(Account acc);
@@ -16,7 +17,8 @@ public interface AccountRepository {
 
 	// Métodos Bancários
 	
-	public void draw(int numero, float valor);
-	public void deposit(int numero, float valor);
+	public boolean draw(int numero, float valor);
+	public boolean deposit(int numero, float valor);
 	public void transfer(int numeroOrigem, int numeroDestino, float valor);
+
 }
